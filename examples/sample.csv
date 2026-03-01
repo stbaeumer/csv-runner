@@ -1,0 +1,7 @@
+# key|value
+gh|https://github.com
+notes|joplin://x-callback-url/openNote?id=123456
+team-mail|team@example.org
+bank/login|pass
+bank/otp|otp
+api-token|abc123

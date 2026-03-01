@@ -1,0 +1,20 @@
+{
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "you@example.com",
+                "Name": "csv-runner"
+            }
+        ],
+        "Category": "Utilities",
+        "Description": "KRunner plugin that loads key|value data from CSV files",
+        "EnabledByDefault": true,
+        "Icon": "text-csv",
+        "License": "MIT",
+        "Name": "CSV Runner",
+        "Version": "0.1.0",
+        "Website": "https://example.invalid"
+    },
+    "X-Plasma-Runner-Min-Letter-Count": 1,
+    "X-Plasma-Runner-Unique-Results": false
+}
