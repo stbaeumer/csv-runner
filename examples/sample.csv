@@ -5,3 +5,4 @@ team-mail|team@example.org
 bank/login|pass
 bank/otp|otp
 api-token|abc123
+secret123|secret123
