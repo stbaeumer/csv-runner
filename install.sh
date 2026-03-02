@@ -17,6 +17,14 @@ CSV_DIR="${CSV_RUNNER_DIR:-$HOME/.local/share/csv-runner}"
 SAMPLE_SRC="$SCRIPT_DIR/examples/sample.csv"
 SAMPLE_DST="$CSV_DIR/sample.csv"
 
+if command -v systemctl >/dev/null 2>&1; then
+  systemctl --user set-environment QT_PLUGIN_PATH="$PREFIX/lib64/qt6/plugins" || true
+fi
+
+if command -v dbus-update-activation-environment >/dev/null 2>&1; then
+  dbus-update-activation-environment --systemd QT_PLUGIN_PATH="$PREFIX/lib64/qt6/plugins" || true
+fi
+
 if command -v kquitapp6 >/dev/null 2>&1; then
   kquitapp6 krunner || true
 fi
@@ -48,5 +56,6 @@ echo "Icons in: $ICON_DIR"
 ls -1 "$ICON_DIR" 2>/dev/null | grep -E '^(joplin|pass|otp|www|mail|csv-runner)\.svg$' || true
 echo "Plasma-Env: $PLASMA_ENV_FILE"
 echo "CSV-Ordner: $CSV_DIR"
+echo "Session-Fix: QT_PLUGIN_PATH für systemd/DBus gesetzt"
 
-echo "Wichtig: Für Alt+Leertaste/Plasma-KRunner einmal ab- und wieder anmelden."
+echo "Falls Alt+Leertaste trotzdem nichts zeigt: einmal ab- und wieder anmelden."

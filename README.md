@@ -37,8 +37,11 @@ Zeilen mit `#` am Anfang werden ignoriert.
 ## CSV-Ordner
 
 - Standard: `~/.local/share/csv-runner`
-- Optional per Umgebungsvariable überschreiben: `CSV_RUNNER_DIR`
+- Optional zusätzlicher Ordner per Umgebungsvariable: `CSV_RUNNER_DIR`
 - Legacy-Fallback: `~/csv-runner` (falls der neue Standardordner nicht existiert)
+
+Standardmäßig werden `~/.local/share/csv-runner` und `~/csv-runner` gescannt.
+Ist `CSV_RUNNER_DIR` gesetzt, wird dieser Ordner zusätzlich mitgescannt.
 
 CSV-Änderungen (neue/änderte Dateien) werden ohne Neuanmeldung bei der nächsten
 KRunner-Abfrage berücksichtigt.
@@ -127,6 +130,18 @@ für die Plasma-Sitzung gesetzt sein. `install.sh` legt dafür automatisch an:
 ```
 
 Danach einmal ab- und wieder anmelden.
+
+`install.sh` setzt `QT_PLUGIN_PATH` zusätzlich direkt in die laufende User-Session
+(systemd/DBus), sodass es meist sofort ohne Neu-Anmeldung funktioniert.
+
+Manuell (falls nötig):
+
+```bash
+systemctl --user set-environment QT_PLUGIN_PATH="$HOME/.local/lib64/qt6/plugins"
+dbus-update-activation-environment --systemd QT_PLUGIN_PATH="$HOME/.local/lib64/qt6/plugins"
+kquitapp6 krunner || true
+nohup krunner >/dev/null 2>&1 &
+```
 
 ## Hinweise zu `pass` / `otp`
 

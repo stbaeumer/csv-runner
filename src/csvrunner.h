@@ -22,7 +22,7 @@ private:
     };
 
     [[nodiscard]] QVector<CsvEntry> readAllEntries() const;
-    [[nodiscard]] QString csvDirectory() const;
+    [[nodiscard]] QStringList csvDirectories() const;
     [[nodiscard]] QString readSecretFromPass(const QString &entryName) const;
     [[nodiscard]] QString readOtpFromPass(const QString &entryName) const;
     static bool isMailAddress(const QString &value);

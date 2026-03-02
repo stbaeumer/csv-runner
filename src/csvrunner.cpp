@@ -13,6 +13,7 @@
 #include <QFileInfo>
 #include <QGuiApplication>
 #include <QProcess>
+#include <QSet>
 #include <QTextStream>
 #include <QUrl>
 
@@ -101,46 +102,56 @@ QVector<CsvRunner::CsvEntry> CsvRunner::readAllEntries() const
 {
     QVector<CsvEntry> entries;
 
-    const QDir directory(csvDirectory());
-    if (!directory.exists()) {
-        return entries;
-    }
+    const QStringList baseDirs = csvDirectories();
+    QSet<QString> seenFiles;
 
-    QStringList csvFiles;
-    QDirIterator it(directory.absolutePath(), {QStringLiteral("*.csv")}, QDir::Files | QDir::Readable, QDirIterator::Subdirectories);
-    while (it.hasNext()) {
-        csvFiles.push_back(it.next());
-    }
-    std::sort(csvFiles.begin(), csvFiles.end(), [](const QString &a, const QString &b) {
-        return a.compare(b, Qt::CaseInsensitive) < 0;
-    });
-
-    for (const QString &csvFilePath : csvFiles) {
-        const QFileInfo fileInfo(csvFilePath);
-        QFile file(csvFilePath);
-        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    for (const QString &baseDirPath : baseDirs) {
+        const QDir directory(baseDirPath);
+        if (!directory.exists()) {
             continue;
         }
 
-        QTextStream stream(&file);
-        while (!stream.atEnd()) {
-            const QString line = stream.readLine().trimmed();
-            if (line.isEmpty() || line.startsWith(QLatin1Char('#'))) {
+        QStringList csvFiles;
+        QDirIterator it(directory.absolutePath(), {QStringLiteral("*.csv")}, QDir::Files | QDir::Readable, QDirIterator::Subdirectories);
+        while (it.hasNext()) {
+            csvFiles.push_back(it.next());
+        }
+        std::sort(csvFiles.begin(), csvFiles.end(), [](const QString &a, const QString &b) {
+            return a.compare(b, Qt::CaseInsensitive) < 0;
+        });
+
+        for (const QString &csvFilePath : csvFiles) {
+            if (seenFiles.contains(csvFilePath)) {
+                continue;
+            }
+            seenFiles.insert(csvFilePath);
+
+            const QFileInfo fileInfo(csvFilePath);
+            QFile file(csvFilePath);
+            if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
                 continue;
             }
 
-            const QStringList parts = line.split(m_separatorRegex, Qt::KeepEmptyParts);
-            if (parts.size() < 2) {
-                continue;
-            }
+            QTextStream stream(&file);
+            while (!stream.atEnd()) {
+                const QString line = stream.readLine().trimmed();
+                if (line.isEmpty() || line.startsWith(QLatin1Char('#'))) {
+                    continue;
+                }
 
-            CsvEntry entry;
-            entry.key = parts.at(0).trimmed();
-            entry.value = parts.mid(1).join(QStringLiteral("|")).trimmed();
-            entry.sourceFile = directory.relativeFilePath(fileInfo.absoluteFilePath());
+                const QStringList parts = line.split(m_separatorRegex, Qt::KeepEmptyParts);
+                if (parts.size() < 2) {
+                    continue;
+                }
 
-            if (!entry.key.isEmpty() && !entry.value.isEmpty()) {
-                entries.push_back(entry);
+                CsvEntry entry;
+                entry.key = parts.at(0).trimmed();
+                entry.value = parts.mid(1).join(QStringLiteral("|")).trimmed();
+                entry.sourceFile = directory.relativeFilePath(fileInfo.absoluteFilePath());
+
+                if (!entry.key.isEmpty() && !entry.value.isEmpty()) {
+                    entries.push_back(entry);
+                }
             }
         }
     }
@@ -148,19 +159,30 @@ QVector<CsvRunner::CsvEntry> CsvRunner::readAllEntries() const
     return entries;
 }
 
-QString CsvRunner::csvDirectory() const
+QStringList CsvRunner::csvDirectories() const
 {
     const QString configured = qEnvironmentVariable("CSV_RUNNER_DIR").trimmed();
+
+    QStringList directories;
     if (!configured.isEmpty()) {
-        return configured;
+        directories.push_back(configured);
     }
 
-    const QString preferred = QDir::homePath() + QStringLiteral("/.local/share/csv-runner");
-    if (QDir(preferred).exists()) {
-        return preferred;
+    directories.push_back(QDir::homePath() + QStringLiteral("/.local/share/csv-runner"));
+    directories.push_back(QDir::homePath() + QStringLiteral("/csv-runner"));
+
+    QStringList uniqueDirectories;
+    QSet<QString> seen;
+    for (const QString &dir : directories) {
+        const QString normalized = QDir(dir).absolutePath();
+        if (seen.contains(normalized)) {
+            continue;
+        }
+        seen.insert(normalized);
+        uniqueDirectories.push_back(normalized);
     }
 
-    return QDir::homePath() + QStringLiteral("/csv-runner");
+    return uniqueDirectories;
 }
 
 QString CsvRunner::readSecretFromPass(const QString &entryName) const
