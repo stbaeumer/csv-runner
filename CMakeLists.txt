@@ -35,6 +35,7 @@ install(TARGETS krunner_csvrunner DESTINATION ${CMAKE_INSTALL_LIBDIR}/qt6/plugin
 
 install(FILES
     icons/joplin.svg
+    icons/teams.svg
     icons/pass.svg
     icons/otp.svg
     icons/www.svg

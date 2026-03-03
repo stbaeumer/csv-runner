@@ -112,7 +112,7 @@ QVector<CsvRunner::CsvEntry> CsvRunner::readAllEntries() const
         }
 
         QStringList csvFiles;
-        QDirIterator it(directory.absolutePath(), {QStringLiteral("*.csv")}, QDir::Files | QDir::Readable, QDirIterator::Subdirectories);
+        QDirIterator it(directory.absolutePath(), {QStringLiteral("*.csv"), QStringLiteral("*.txt")}, QDir::Files | QDir::Readable, QDirIterator::Subdirectories);
         while (it.hasNext()) {
             csvFiles.push_back(it.next());
         }
@@ -224,6 +224,11 @@ bool CsvRunner::isMailAddress(const QString &value)
 QString CsvRunner::iconNameForValue(const QString &value)
 {
     const QString trimmedValue = value.trimmed();
+
+    if (trimmedValue.startsWith(QStringLiteral("https://"), Qt::CaseInsensitive)
+        && trimmedValue.contains(QStringLiteral("teams"), Qt::CaseInsensitive)) {
+        return QStringLiteral("teams");
+    }
 
     if (trimmedValue.startsWith(QStringLiteral("https://"), Qt::CaseInsensitive)) {
         return QStringLiteral("www");

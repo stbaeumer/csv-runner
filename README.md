@@ -13,7 +13,7 @@ Bei Treffer auf `key` wird abhängig von `value` ausgeführt:
 
 ## CSV-Format
 
-Eine oder mehrere Dateien `*.csv` im Zielordner, pro Zeile:
+Eine oder mehrere Dateien `*.csv` oder `*.txt` im Zielordner, pro Zeile:
 
 ```text
 key|value

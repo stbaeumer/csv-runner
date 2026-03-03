@@ -54,6 +54,7 @@ fi
 
 echo "Icons in: $ICON_DIR"
 ls -1 "$ICON_DIR" 2>/dev/null | grep -E '^(joplin|pass|otp|www|mail|csv-runner)\.svg$' || true
+ls -1 "$ICON_DIR" 2>/dev/null | grep -E '^teams\.svg$' || true
 echo "Plasma-Env: $PLASMA_ENV_FILE"
 echo "CSV-Ordner: $CSV_DIR"
 echo "Session-Fix: QT_PLUGIN_PATH für systemd/DBus gesetzt"
